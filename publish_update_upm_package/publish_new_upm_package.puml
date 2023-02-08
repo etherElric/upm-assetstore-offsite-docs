@@ -7,28 +7,24 @@ title Publish or Update UPM package
 
 
 Editor -> UPM_Registry : GET /metadata
-UPM_Registry -> ASv1 : GET /metadata
+UPM_Registry -> ASv1 : GET /packman/metadata
 ASv1 -> UPM_Registry : return PublisherMeta + PulbisherPackages
 UPM_Registry -> Editor: return PublisherMeta + PulbisherPackages
 
-Editor -> UPM_Registry : GET /terms
-UPM_Registry -> ASv2 : GET /terms
+Editor -> UPM_Registry : GET /terms/check
+UPM_Registry -> ASv2 : GET /external-api/upm/terms/<userId>/check
 ASv2 ->  UPM_Registry: data
 UPM_Registry -> Editor : data
 
-Editor -> UPM_Registry : GET /download-info
-UPM_Registry -> ASv1 : GET /Packages
+Editor -> UPM_Registry : GET /legacy-package-download-info
+UPM_Registry -> ASv1 : GET /package/download/<packageId>
 ASv2 ->  UPM_Registry: data
 UPM_Registry -> Editor : data
 
-activate Editor
-    Editor -> Editor: check
 note left 
-    1. check if belogs to publisher 
+    1. check if belongs to publisher 
     2. check if unique 
 end note
-deactivate Editor
-
 
 Editor -> UPM_Registry : POST /upload
 UPM_Registry -> GCS : Upload upm package file
