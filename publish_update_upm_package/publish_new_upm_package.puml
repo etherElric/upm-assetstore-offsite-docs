@@ -2,6 +2,7 @@
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
 title Publish or Update UPM package
+actor Publisher as Publisher
 
 == Publish New Package==
 
@@ -21,19 +22,65 @@ UPM_Registry -> ASv1 : GET /package/download/<packageId>
 ASv2 ->  UPM_Registry: data
 UPM_Registry -> Editor : data
 
-note left 
-    1. check if belongs to publisher 
-    2. check if unique 
-end note
-
 Editor -> UPM_Registry : POST /upload
 UPM_Registry -> GCS : Upload upm package file
 UPM_Registry -> ASv1 : POST /packman/upload - Save asset store metadata
+ASv1 -> Publisher_Portal : create a new draft automatically from saved metadata
 UPM_Registry -> Editor: retrun 200 ok
 
 == Update ==
 
+Editor -> UPM_Registry : GET /metadata
+UPM_Registry -> ASv1 : GET /packman/metadata
+ASv1 -> UPM_Registry : return PublisherMeta + PulbisherPackages
+UPM_Registry -> Editor: return PublisherMeta + PulbisherPackages
 
+Editor -> UPM_Registry : GET /terms/check
+UPM_Registry -> ASv2 : GET /external-api/upm/terms/<userId>/check
+ASv2 ->  UPM_Registry: data
+UPM_Registry -> Editor : data
 
+Editor -> UPM_Registry : GET /legacy-package-download-info
+UPM_Registry -> ASv1 : GET /package/download/<packageId>
+ASv2 ->  UPM_Registry: data
+UPM_Registry -> Editor : data
+
+Publisher -> Publisher_Portal : create draft for the Update
+
+note left
+    1. we should consider creating the draft automatically here
+end note
+
+Editor -> UPM_Registry : POST /upload ; make sure to pass the packageVersion in the POST body
+
+note left
+    1. currently upm.develop does not send the packageVersion
+    2. UPM_Registry expects the packageVersion as an integer but the JSON serialization used in upm.develop does not make this easy
+end note
+
+UPM_Registry -> GCS : Upload upm package file
+UPM_Registry -> ASv1 : POST /packman/upload/<packageVersion> - Save asset store metadata
+ASv1 -> Publisher_Portal : create a new draft automatically from saved metadata
+
+note left
+    1. ASv1 will create a new product+draft (a new listing seen on the Publishing portal) even if there already exists a draft with the same package name and version 
+    2. this means we can possibly have a case where one package and version have multiple drafts
+end note
+
+UPM_Registry -> Editor: retrun 200 ok
+
+== Submitting Draft UPM Package to Vetting ==
+
+Publisher -> Publisher_Portal : enter marketing fields/product info
+
+note left
+    1. we want to replace existing  with new pushed draft if the package name and version are the same to avoid multiple drafts for same package version (currently)
+    2. fix this on (Editor | UPM) side
+end note
+
+Publisher -> Publisher_Portal : submit the product/package draft
+Publisher_Portal -> ASv1 : submit the product/package draft
+ASv1 -> Yamato : trigger the automated vetting pipeline (AB Builder)
+ASv1 -> Genesis : create a new vetting task - from here, it's up to manual vetting and approval in Dragon
 
 @enduml
