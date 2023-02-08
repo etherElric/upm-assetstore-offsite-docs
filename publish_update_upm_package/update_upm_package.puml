@@ -1,7 +1,7 @@
 @startuml "refund-requests-api-flow"
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
-title Publish New UPM package
+title Update UPM package
 actor Publisher as Publisher
 
 Editor -> UPM_Registry : GET /metadata
@@ -19,10 +19,28 @@ UPM_Registry -> ASv1 : GET /package/download/<packageId>
 ASv2 ->  UPM_Registry: data
 UPM_Registry -> Editor : data
 
-Editor -> UPM_Registry : POST /upload
+Publisher -> Publisher_Portal : create draft for the Update
+
+note left
+    1. we should consider creating the draft automatically here
+end note
+
+Editor -> UPM_Registry : POST /upload ; make sure to pass the packageVersion in the POST body
+
+note left
+    1. currently upm.develop does not send the packageVersion
+    2. UPM_Registry expects the packageVersion as an integer but the JSON serialization used in upm.develop does not make this easy
+end note
+
 UPM_Registry -> GCS : Upload upm package file
-UPM_Registry -> ASv1 : POST /packman/upload - Save asset store metadata
+UPM_Registry -> ASv1 : POST /packman/upload/<packageVersion> - Save asset store metadata
 ASv1 -> Publisher_Portal : create a new draft automatically from saved metadata
+
+note left
+    1. ASv1 will create a new product+draft (a new listing seen on the Publishing portal) even if there already exists a draft with the same package name and version 
+    2. this means we can possibly have a case where one package and version have multiple drafts
+end note
+
 UPM_Registry -> Editor: retrun 200 ok
 
 @enduml

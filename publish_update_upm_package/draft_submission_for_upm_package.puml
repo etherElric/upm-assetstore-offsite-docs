@@ -1,0 +1,19 @@
+@startuml "refund-requests-api-flow"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Submitting Draft UPM Package to Vetting
+actor Publisher as Publisher
+
+Publisher -> Publisher_Portal : enter marketing fields/product info
+
+note left
+    1. we want to replace existing  with new pushed draft if the package name and version are the same to avoid multiple drafts for same package version (currently)
+    2. fix this on (Editor | UPM) side
+end note
+
+Publisher -> Publisher_Portal : submit the product/package draft
+Publisher_Portal -> ASv1 : submit the product/package draft
+ASv1 -> Yamato : trigger the automated vetting pipeline (AB Builder)
+ASv1 -> Genesis : create a new vetting task - from here, it's up to manual vetting and approval in Dragon
+
+@enduml
