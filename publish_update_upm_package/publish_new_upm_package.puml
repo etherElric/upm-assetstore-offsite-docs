@@ -1,0 +1,43 @@
+@startuml "refund-requests-api-flow"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Publish or Update UPM package
+
+== Publish New Package==
+
+
+Editor -> UPM_Registry : GET /metadata
+UPM_Registry -> ASv1 : GET /metadata
+ASv1 -> UPM_Registry : return PublisherMeta + PulbisherPackages
+UPM_Registry -> Editor: return PublisherMeta + PulbisherPackages
+
+Editor -> UPM_Registry : GET /terms
+UPM_Registry -> ASv2 : GET /terms
+ASv2 ->  UPM_Registry: data
+UPM_Registry -> Editor : data
+
+Editor -> UPM_Registry : GET /download-info
+UPM_Registry -> ASv1 : GET /Packages
+ASv2 ->  UPM_Registry: data
+UPM_Registry -> Editor : data
+
+activate Editor
+    Editor -> Editor: check
+note left 
+    1. check if belogs to publisher 
+    2. check if unique 
+end note
+deactivate Editor
+
+
+Editor -> UPM_Registry : POST /upload
+UPM_Registry -> GCS : Upload upm package file
+UPM_Registry -> ASv1 : POST /packman/upload - Save asset store metadata
+UPM_Registry -> Editor: retrun 200 ok
+
+== Update ==
+
+
+
+
+@enduml
