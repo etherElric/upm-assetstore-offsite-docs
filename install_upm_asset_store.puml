@@ -1,0 +1,16 @@
+@startuml "refund-requests-api-flow"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Install UPM package from Asset Store
+actor Consumer as Consumer
+
+Editor -> UPM_Registry : GET /<name>
+UPM_Registry -> Editor : return package metadata + url
+
+Editor -> UPM_Registry : GET /-/api/download-info/<name>/<version>
+UPM_Registry -> ASv1 : GET /package/packman_download?kharma_user_id=<userId>&name=<name>&version=<version>
+ASv1 -> UPM_Registry : return decryption key
+UPM_Registry -> Editor: return decryption key
+Editor -> Editor : decrypt the tarball and move it to the global cache
+
+@enduml
