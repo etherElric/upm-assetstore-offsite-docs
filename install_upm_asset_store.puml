@@ -4,13 +4,13 @@
 title Install UPM package from Asset Store
 actor Consumer as Consumer
 
-Editor -> UPM_Registry : GET /<name>
-UPM_Registry -> Editor : return package metadata + url
+UPM -> UPM_Registry : GET /<name>
+UPM_Registry -> UPM : return package metadata + url
 
-Editor -> UPM_Registry : GET /-/api/download-info/<name>/<version>
+UPM -> UPM_Registry : GET /-/api/download-info/<name>/<version>
 UPM_Registry -> ASv1 : GET /package/packman_download?kharma_user_id=<userId>&name=<name>&version=<version>
 ASv1 -> UPM_Registry : return decryption key
-UPM_Registry -> Editor: return decryption key
-Editor -> Editor : decrypt the tarball and move it to the global cache
+UPM_Registry -> UPM: return decryption key
+UPM -> UPM : decrypt the tarball and move it to the UPM global cache
 
 @enduml

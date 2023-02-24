@@ -1,0 +1,13 @@
+@startuml "refund-requests-api-flow"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Download legacy package from Asset Store
+actor Consumer as Consumer
+
+Packman_window -> UPM_Registry : GET /-/api/legacy-package-download-info/<packageId>
+UPM_Registry -> ASv1 : GET /package/download?<packageId>kharma_user_id=<userId>[&uploadId=<uploadId>]
+ASv1 -> UPM_Registry : return decryption key
+UPM_Registry -> Packman_window: return decryption key
+Packman_window -> Packman_window : decrypt the tarball and move it to the asset store cache
+
+@enduml

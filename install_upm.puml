@@ -1,0 +1,13 @@
+@startuml "refund-requests-api-flow"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Install UPM package from Unity registry
+actor Consumer as Consumer
+
+UPM -> UPM_Registry : GET /<name>
+UPM_Registry -> UPM : return package metadata + url
+
+UPM -> UPM : download the tarball using the URL found in the metadata
+UPM -> UPM : move the tarball to the UPM global cache
+
+@enduml
