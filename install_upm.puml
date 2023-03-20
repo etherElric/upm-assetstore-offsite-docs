@@ -7,7 +7,8 @@ actor Consumer as Consumer
 UPM -> UPM_Registry : GET /<name>
 UPM_Registry -> UPM : return package metadata + url
 
-UPM -> UPM : download the tarball using the URL found in the metadata
-UPM -> UPM : move the tarball to the UPM global cache
+UPM -> UPM_Registry : GET <package URL>
+UPM_Registry -> UPM : download tarball
+UPM -> UPM : move tarball to the UPM global cache
 
 @enduml

@@ -7,7 +7,10 @@ actor Consumer as Consumer
 Packman_window -> UPM_Registry : GET /-/api/legacy-package-download-info/<packageId>
 UPM_Registry -> ASv1 : GET /package/download?<packageId>kharma_user_id=<userId>[&uploadId=<uploadId>]
 ASv1 -> UPM_Registry : return decryption key
-UPM_Registry -> Packman_window: return decryption key
-Packman_window -> Packman_window : decrypt the tarball and move it to the asset store cache
+UPM_Registry -> Packman_window: return decryption key and download-url
+Packman_window -> UPM_Registry : GET <download-url>
+UPM_Registry -> Packman_window : download the encrypted .unitypackage
+Packman_window -> Packman_window : decrypt the .unitypackage file
+Packman_window -> Packman_window : move files to the asset store cache
 
 @enduml

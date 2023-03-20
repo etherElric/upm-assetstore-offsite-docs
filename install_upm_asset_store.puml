@@ -11,6 +11,10 @@ UPM -> UPM_Registry : GET /-/api/download-info/<name>/<version>
 UPM_Registry -> ASv1 : GET /package/packman_download?kharma_user_id=<userId>&name=<name>&version=<version>
 ASv1 -> UPM_Registry : return decryption key
 UPM_Registry -> UPM: return decryption key
-UPM -> UPM : decrypt the tarball and move it to the UPM global cache
+
+UPM -> UPM_Registry: GET package url
+UPM_Registry -> UPM: download tarball
+UPM -> UPM : decrypt the downloaded tarball 
+UPM -> UPM : move tarball to the UPM global cache
 
 @enduml
